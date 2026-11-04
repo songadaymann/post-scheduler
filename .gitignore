@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Secrets and local overrides. .env.example is the only env file that belongs in git.
+.env
+.env.*
+!.env.example
+
+# Runtime state, locks, and logs. Real post history stays on the machine.
+data/
+logs/
+*.log
+tmp/
+output/
+
+.DS_Store
