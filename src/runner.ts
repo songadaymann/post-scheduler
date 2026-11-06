@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { isEligibleToPost } from './approval'
 import { loadState, writeState } from './state'
 import { formatEt, toIso } from './time'
 import type {
@@ -75,6 +76,11 @@ export async function processDue(options: {
   )
 
   for (const post of ordered) {
+    // Drafts, suggested-only times, and approvals whose copy changed are
+    // never sent. They are also not marked missed: a suggested time is not
+    // a commitment, and a stale approval is waiting for Jonathan.
+    if (!isEligibleToPost(post)) continue
+
     const decision = classifyPost(
       post,
       state.posts[post.id],

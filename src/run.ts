@@ -2,8 +2,10 @@ import { DateTime } from 'luxon'
 import { loadConfig } from './config'
 import { missingCredentialNames, loadEnvFile } from './env'
 import { UserError } from './errors'
+import { applyRuntimePaths } from './paths'
 import { formatPreview } from './preview'
 import { processDue } from './runner'
+import { ensureLocalLibrary } from './seed'
 import { acquireLock, loadState, releaseLock } from './state'
 import { createTwitterPoster } from './twitter'
 import type { Poster } from './types'
@@ -40,8 +42,14 @@ export async function execute(
     return 0
   }
 
-  const config = loadConfig(root)
-  const { posts, warnings } = loadValidated(root, config)
+  const config = applyRuntimePaths(root, loadConfig(root), env)
+  if (ensureLocalLibrary(root, config, env)) {
+    info(`Seeded ${config.postsDir} from posts/ templates.`)
+  }
+  const { posts, warnings, held, untimed, draftIssues } = loadValidated(
+    root,
+    config
+  )
   const enabled = env.POST_SCHEDULER_ENABLED === '1'
   const explicitPreview = argv.includes('--preview')
   const now = options.now ?? DateTime.now()
@@ -56,6 +64,9 @@ export async function execute(
         enabled,
         explicitPreview,
         warnings,
+        held,
+        untimed,
+        draftIssues,
       })
     )
     return 0
@@ -95,6 +106,7 @@ export function usageText(): string {
     '  npm run preview     validate and print the schedule in Eastern Time (never posts)',
     '  npm start           post due items when POST_SCHEDULER_ENABLED=1',
     '  npm run self-test   run local checks with a mocked poster (no network)',
+    '  npm run studio      open the local campaign studio at http://127.0.0.1:4310',
     '',
     'Flags:',
     '  --preview     print the schedule even when posting is enabled',

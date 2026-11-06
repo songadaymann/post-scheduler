@@ -22,7 +22,10 @@ const TOP_LEVEL_KEYS = new Set([
 const CAMPAIGN_KEYS = new Set(['bannedPhrases', 'windows', 'outsideWindow'])
 const WINDOW_KEYS = new Set(['start', 'end'])
 
-export function loadConfig(root: string): SchedulerConfig {
+export function loadConfig(
+  root: string,
+  options: { local?: boolean } = {}
+): SchedulerConfig {
   const path = join(root, 'scheduler.config.json')
   if (!existsSync(path)) {
     throw new UserError(`Missing scheduler.config.json in ${root}`)
@@ -75,7 +78,38 @@ export function loadConfig(root: string): SchedulerConfig {
       record.outsideWindow ?? 'fail',
       'outsideWindow'
     ),
-    campaigns: parseCampaigns(record.campaigns ?? {}),
+    campaigns: mergeLocalCampaigns(
+      root,
+      parseCampaigns(record.campaigns ?? {}),
+      options.local !== false
+    ),
+  }
+}
+
+export function localCampaignsPath(root: string): string {
+  return join(root, 'data', 'scheduler', 'campaigns.local.json')
+}
+
+function mergeLocalCampaigns(
+  root: string,
+  campaigns: Record<string, CampaignConfig>,
+  includeLocal: boolean
+): Record<string, CampaignConfig> {
+  if (!includeLocal) return campaigns
+  const path = localCampaignsPath(root)
+  if (!existsSync(path)) return campaigns
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new UserError(`campaigns.local.json is not valid JSON: ${message}`)
+  }
+  const record = asRecord(parsed, 'campaigns.local.json')
+  assertOnlyKeys(record, new Set(['campaigns']), 'campaigns.local.json')
+  return {
+    ...campaigns,
+    ...parseCampaigns(record.campaigns ?? {}),
   }
 }
 

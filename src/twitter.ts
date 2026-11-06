@@ -5,10 +5,9 @@ import ffmpeg from 'fluent-ffmpeg'
 import { TwitterApi } from 'twitter-api-v2'
 import { requireEnv } from './env'
 import { UserError } from './errors'
-import { mediaKind, mimeTypeFor } from './media'
+import { MAX_VIDEO_SECONDS, mediaKind, mimeTypeFor } from './media'
 import type { Poster } from './types'
 
-const MAX_VIDEO_DURATION = 140
 const MAX_VIDEO_SIZE = 512 * 1024 * 1024
 const UPLOAD_ATTEMPTS = 3
 const UPLOAD_RETRY_DELAYS_MS = [5_000, 15_000]
@@ -108,7 +107,7 @@ async function processVideoIfNeeded(videoPath: string): Promise<string> {
   const info = await inspectVideo(videoPath)
   if (info.exceedsDurationLimit) {
     throw new UserError(
-      `Video is ${info.durationSeconds.toFixed(3)}s; X API videos must be ${MAX_VIDEO_DURATION}s or shorter. Refusing to trim.`
+      `Video is ${info.durationSeconds.toFixed(3)}s; X API videos must be ${MAX_VIDEO_SECONDS}s or shorter. Refusing to trim.`
     )
   }
   const isMp4 = extname(videoPath).toLowerCase() === '.mp4'
@@ -132,7 +131,7 @@ async function inspectVideo(videoPath: string): Promise<{
   }
   return {
     durationSeconds,
-    exceedsDurationLimit: durationSeconds > MAX_VIDEO_DURATION,
+    exceedsDurationLimit: durationSeconds > MAX_VIDEO_SECONDS,
     exceedsSizeLimit: statSync(videoPath).size > MAX_VIDEO_SIZE,
   }
 }

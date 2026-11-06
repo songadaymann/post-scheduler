@@ -27,6 +27,7 @@ import {
 } from './state'
 import { formatEt, parseWallTime, TIME_ZONE } from './time'
 import type { Poster, PostRequest, ScheduledPost, SchedulerConfig } from './types'
+import { runStudioSelfTest } from './studio-self-test'
 import { loadValidated, validatePosts } from './validate'
 
 const COMMISSION_BANS = [
@@ -64,6 +65,7 @@ export async function runSelfTest(): Promise<void> {
     await testExecute(roots)
     testEnvFile(roots)
     testRealLibrary()
+    await runStudioSelfTest(roots)
     console.log('Self-test passed.')
   } finally {
     for (const root of roots) rmSync(root, { recursive: true, force: true })
@@ -882,8 +884,9 @@ function testEnvFile(roots: string[]): void {
 
 function testRealLibrary(): void {
   const root = join(__dirname, '..')
-  const config = loadConfig(root)
+  const config = loadConfig(root, { local: false })
   assert.equal(config.timezone, TIME_ZONE)
+  assert.equal(config.postsDir, join(root, 'data', 'posts'))
   assert.equal(config.minSpacingHours, 2)
   assert.equal(config.staleAfterHours, 2)
   assert.deepEqual(
@@ -893,7 +896,8 @@ function testRealLibrary(): void {
   assert.equal(config.campaigns.donations?.outsideWindow, 'warn')
   assert.equal(config.campaigns.wamp?.windows.length, 2)
 
-  const { posts, warnings } = loadValidated(root, config)
+  const templates = { ...config, postsDir: join(root, 'posts') }
+  const { posts, warnings } = loadValidated(root, templates)
   assert.deepEqual(warnings, [])
   const ids = [
     'comm-2026-12-01',

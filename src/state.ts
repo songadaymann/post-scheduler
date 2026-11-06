@@ -44,6 +44,20 @@ export function loadState(stateDir: string, now: DateTime): SchedulerState {
   return parseState(parsed, path)
 }
 
+export function forgetRuntimeUnlessPosted(
+  stateDir: string,
+  id: string,
+  now: DateTime
+): boolean {
+  const state = loadState(stateDir, now)
+  const record = state.posts[id]
+  if (!record || record.status === 'posted') return false
+  delete state.posts[id]
+  state.updatedAt = toIso(now)
+  writeState(stateDir, state)
+  return true
+}
+
 export function writeState(stateDir: string, state: SchedulerState): void {
   mkdirSync(stateDir, { recursive: true })
   const path = stateFilePath(stateDir)

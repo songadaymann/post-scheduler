@@ -1,6 +1,8 @@
 import { homedir } from 'os'
 import { isAbsolute, join, resolve, extname } from 'path'
 
+export const MAX_VIDEO_SECONDS = 140
+
 export const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.m4v', '.webm'])
 export const IMAGE_EXTENSIONS = new Set([
   '.jpg',

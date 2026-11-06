@@ -25,6 +25,9 @@ export interface SchedulerConfig {
   campaigns: Record<string, CampaignConfig>
 }
 
+export type Approval = 'draft' | 'approved'
+export type TimeField = 'scheduled' | 'suggested' | 'none'
+
 export interface ScheduledPost {
   id: string
   campaign: string
@@ -32,6 +35,37 @@ export interface ScheduledPost {
   text: string
   mediaPath?: string
   sourceFile: string
+  // Omitted on in-memory fixtures means a legacy approved post.
+  // Parsed library posts always set this. Drafts are never sent.
+  approval?: Approval
+  approvalStale?: boolean
+  timeField?: TimeField
+  suggested?: DateTime
+  notes?: string
+  quoteUrl?: string
+  mediaRaw?: string
+  approvedHash?: string
+}
+
+// A library post that may not have a send time yet. Drafts without a time
+// stay here so the studio can edit them; the runner never sees them.
+export interface RichPost {
+  id: string
+  campaign: string
+  approval: Approval
+  approvalStale: boolean
+  timeField: TimeField
+  scheduled: DateTime | null
+  suggested: DateTime | null
+  text: string
+  mediaPath?: string
+  mediaRaw?: string
+  notes?: string
+  quoteUrl?: string
+  approvedHash?: string
+  sourceFile: string
+  absoluteFile: string
+  parseErrors: string[]
 }
 
 export type PostStatus = 'pending' | 'posting' | 'posted' | 'missed'

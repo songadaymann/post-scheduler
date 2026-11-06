@@ -24,6 +24,18 @@ export function formatEt(value: DateTime): string {
   return value.setZone(TIME_ZONE).toFormat('yyyy-LL-dd hh:mm a ZZZZ')
 }
 
+export function formatWall(value: DateTime): string {
+  const local = value.setZone(TIME_ZONE)
+  const clock = local.second
+    ? local.toFormat('yyyy-LL-dd HH:mm:ss')
+    : local.toFormat('yyyy-LL-dd HH:mm')
+  return `${clock} America/New_York`
+}
+
+export function wallClock(value: DateTime): string {
+  return value.setZone(TIME_ZONE).toFormat('HH:mm')
+}
+
 export function etDay(value: DateTime): string {
   const day = value.setZone(TIME_ZONE).toISODate()
   if (!day) throw new Error('Failed to format an Eastern Time date')

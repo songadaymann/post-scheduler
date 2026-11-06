@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { mediaLabel } from './media'
 import { classifyPost } from './runner'
 import { formatEt } from './time'
+import { sameDayHeadsUps } from './validate'
 import type { ScheduledPost, SchedulerConfig, SchedulerState } from './types'
 
 export function formatPreview(input: {
@@ -12,6 +13,10 @@ export function formatPreview(input: {
   enabled: boolean
   explicitPreview: boolean
   warnings: string[]
+  held?: ScheduledPost[]
+  untimed?: { id: string; campaign: string }[]
+  draftIssues?: string[]
+  headsUps?: string[]
 }): string {
   const lines: string[] = []
   if (!input.enabled) {
@@ -37,6 +42,22 @@ export function formatPreview(input: {
     lines.push('Warnings:')
     for (const warning of input.warnings) lines.push(`- ${warning}`)
   }
+
+  const headsUps =
+    input.headsUps ??
+    sameDayHeadsUps([...input.posts, ...(input.held ?? [])])
+  if (headsUps.length > 0) {
+    lines.push('')
+    lines.push('Heads-up: promo campaigns share an Eastern day')
+    for (const headsUp of headsUps) lines.push(`- ${headsUp}`)
+  }
+  if (input.draftIssues && input.draftIssues.length > 0) {
+    lines.push('')
+    lines.push('Draft notes (these posts are not eligible):')
+    for (const issue of input.draftIssues) lines.push(`- ${issue}`)
+  }
+
+  appendHeld(lines, input.held ?? [], input.untimed ?? [])
 
   if (input.posts.length === 0) {
     lines.push('')
@@ -105,4 +126,27 @@ export function formatPreview(input: {
   }
 
   return lines.join('\n')
+}
+
+function appendHeld(
+  lines: string[],
+  held: ScheduledPost[],
+  untimed: { id: string; campaign: string }[]
+): void {
+  if (held.length === 0 && untimed.length === 0) return
+  lines.push('')
+  lines.push('Held back (not eligible to post)')
+  for (const post of held) {
+    const reason = post.approvalStale
+      ? 'approved copy changed'
+      : post.approval === 'draft'
+        ? 'draft'
+        : 'not scheduled'
+    lines.push(
+      `- ${formatEt(post.scheduled)}  ${post.campaign}  ${post.id}  (${mediaLabel(post.mediaPath)})  ${reason}`
+    )
+  }
+  for (const post of untimed) {
+    lines.push(`- unscheduled  ${post.campaign}  ${post.id}  draft`)
+  }
 }
