@@ -21,60 +21,93 @@
     font-family: "Avenir Next", "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100vh; overflow-x: clip; }
   button, input, textarea, select { font: inherit; color: inherit; }
   button { cursor: pointer; }
+  img, video { max-width: 100%; height: auto; }
   .top {
-    display: flex; justify-content: space-between; gap: 24px; align-items: flex-end;
-    padding: 22px 28px 18px; background: #2a1b12; color: #f6edd9;
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end;
+    gap: 16px 24px; padding: 22px 28px 18px; background: #2a1b12; color: #f6edd9;
   }
-  .brand { display: flex; flex-direction: column; gap: 4px; }
+  .brand, .status { min-width: 0; max-width: 100%; }
+  .brand { display: flex; flex-direction: column; gap: 4px; flex: 1 1 260px; }
   .eyebrow { letter-spacing: 0.16em; text-transform: uppercase; font-size: 11px; color: #e7c27a; }
-  h1 { margin: 0; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: 34px; }
+  h1 { margin: 0; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: clamp(26px, 4vw, 34px); overflow-wrap: anywhere; }
+  .sub, .queue-line, .banner, .excerpt, .file-name, .editor-title h2, .tweet-text, .issues li, .muted, .media, .actions button {
+    overflow-wrap: anywhere;
+  }
   .sub { color: #d9cbb6; font-size: 14px; }
-  .status { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; max-width: 460px; text-align: right; }
-  .pill { border-radius: 999px; padding: 6px 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; }
+  .status { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: 1 1 240px; text-align: right; }
+  .pill { border-radius: 999px; padding: 6px 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; max-width: 100%; }
   .pill.armed { background: #d9f5e4; color: var(--moss); }
   .pill.preview { background: #ffe7b8; color: #7a4b00; }
   .queue-line { font-size: 14px; color: #f0e2cc; }
-  .chips { display: flex; gap: 8px; padding: 14px 28px; overflow-x: auto; border-bottom: 1px solid var(--line); background: #f7f1e4; }
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 28px;
+    border-bottom: 1px solid var(--line); background: #f7f1e4;
+  }
   .chip, .text-button, .primary, .ghost, .danger {
     border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 8px 12px;
   }
-  .chip { min-width: 148px; text-align: left; }
-  .chip strong { display: block; font-size: 14px; }
+  .chip, .text-button { min-width: 0; flex: 1 1 180px; text-align: left; }
+  .chip strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
   .chip span, .muted { color: var(--muted); font-size: 12px; }
   .chip.active { border-color: var(--ink); box-shadow: inset 4px 0 0 var(--accent, var(--ink)); }
-  .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(340px, 0.8fr); gap: 18px; padding: 18px 28px 40px; }
-  .board, .editor, .modal-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(340px, 0.8fr);
+    gap: 18px; padding: 18px 28px 40px; min-width: 0;
+  }
+  .board, .editor, .modal-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: var(--shadow); min-width: 0; max-width: 100%;
+  }
   .board { padding: 16px; }
-  .board-head, .editor-head, .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
-  .month { display: flex; align-items: center; gap: 8px; }
-  .month h2 { margin: 0; font-family: Palatino, Georgia, serif; font-size: 28px; }
-  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
-  .dow, .day { min-height: 84px; border-radius: 10px; padding: 6px; }
-  .dow { min-height: 0; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .day { background: #fbf6ec; border: 1px dashed #eadcC4; }
+  .board-head, .editor-head, .row, .media-actions {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; min-width: 0;
+  }
+  .board-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .month { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .month h2 { margin: 0; font-family: Palatino, Georgia, serif; font-size: clamp(22px, 3vw, 28px); }
+  .calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 12px; min-width: 0; }
+  .dow, .day { border-radius: 10px; padding: 6px; min-width: 0; }
+  .dow { min-height: 0; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
+  .day { min-height: 84px; background: #fbf6ec; border: 1px dashed #eadcc4; display: flex; flex-direction: column; gap: 4px; }
   .day.today { outline: 2px solid var(--gold); }
   .day.drop, .media.drop { background: #fff4d4; border-style: solid; }
-  .day button.pill-post, .queue article { width: 100%; text-align: left; }
-  .pill-post, .queue article {
-    display: block; margin-top: 4px; border: 0; border-radius: 8px; padding: 4px 6px; color: white; font-size: 11px;
+  .day-jump {
+    border: 0; background: transparent; padding: 0; font-weight: 700; text-align: left;
+    min-width: 28px; min-height: 28px;
   }
-  .queue { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+  .pills { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .pill-post, .queue article { width: 100%; text-align: left; min-width: 0; }
+  .pill-post {
+    display: block; border: 0; border-radius: 8px; padding: 4px 6px; color: white; font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  .cal-hint { display: none; margin: 8px 0 0; }
+  .queue { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; min-width: 0; }
   .queue h3 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .queue-day { scroll-margin-top: 12px; }
   .queue article {
     color: var(--ink); background: #fff; border: 1px solid var(--line); border-left: 6px solid var(--accent, var(--navy));
     padding: 10px 12px; cursor: grab;
   }
   .queue article.selected, .pill-post.selected { outline: 2px solid var(--ink); }
-  .editor { padding: 16px; position: sticky; top: 12px; align-self: start; }
+  .editor { padding: 16px; position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; scroll-margin-top: 12px; }
+  .editor-title { min-width: 0; flex: 1 1 160px; }
+  .editor-title h2 { margin: 0; }
+  .back-schedule { display: none; }
   textarea, input[type="text"], input[type="date"], input[type="time"], select {
-    width: 100%; border: 1px solid var(--line); background: #fffdf8; border-radius: 10px; padding: 8px 10px;
+    width: 100%; max-width: 100%; min-width: 0; border: 1px solid var(--line); background: #fffdf8; border-radius: 10px; padding: 8px 10px;
   }
   textarea { min-height: 140px; resize: vertical; line-height: 1.45; }
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
   label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .actions button, .media-actions button, .board-actions button, .month button, .text-button {
+    min-height: 40px; min-width: 0; white-space: normal;
+  }
   .primary { background: var(--ink); color: #fffaf1; border-color: var(--ink); }
   .danger { background: #fff1ea; border-color: #e7b2a1; }
   .count { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -82,27 +115,66 @@
   .issues { margin: 8px 0 0; padding-left: 18px; }
   .issues li.error { color: var(--stamp); }
   .issues li.warning { color: #8a5a00; }
-  .preview { margin-top: 14px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; }
-  .who { display: flex; gap: 10px; align-items: center; }
-  .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: #f0d48a; font-weight: 800; }
+  .preview { margin-top: 14px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; min-width: 0; }
+  .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .who div { min-width: 0; }
+  .avatar { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; display: grid; place-items: center; background: #f0d48a; font-weight: 800; }
   .tweet-text { white-space: pre-wrap; margin: 10px 0; line-height: 1.4; }
   .tweet-text:empty::before { content: "The post preview will show up here."; color: var(--muted); }
-  video, img.shot { max-width: 100%; border-radius: 12px; max-height: 240px; background: #111; }
-  .media { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; background: #fffdf8; }
+  video, img.shot { width: 100%; border-radius: 12px; max-height: min(240px, 40vh); object-fit: contain; background: #111; }
+  .media { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; background: #fffdf8; min-width: 0; }
   .banner { background: #fff4e8; border: 1px solid #efd0a4; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
   .banner.error { background: #fff1ea; border-color: #e7b2a1; }
-  .modal { position: fixed; inset: 0; background: rgba(36, 23, 15, 0.45); display: grid; place-items: center; padding: 20px; }
+  .modal { position: fixed; inset: 0; background: rgba(36, 23, 15, 0.45); display: grid; place-items: center; padding: 12px; }
   .modal[hidden] { display: none; }
-  .modal-card { width: min(560px, 100%); padding: 16px; max-height: 86vh; overflow: auto; }
-  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: white; padding: 10px 14px; border-radius: 999px; }
+  .modal-card { width: min(560px, 100%); padding: 16px; max-height: min(86vh, 100%); overflow: auto; }
+  .toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: max-content; max-width: calc(100% - 32px); background: var(--ink); color: white;
+    padding: 10px 14px; border-radius: 16px; text-align: center; overflow-wrap: anywhere;
+  }
   .toast[hidden] { display: none; }
-  .window-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 8px; }
-  .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-  .library-grid button { padding: 6px; }
-  @media (max-width: 980px) {
-    .layout, .top, .status { display: block; }
-    .status { text-align: left; margin-top: 12px; }
-    .editor { position: static; margin-top: 12px; }
+  .window-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; margin-bottom: 8px; }
+  .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); gap: 8px; }
+  .library-grid button { padding: 6px; min-width: 0; }
+  @media (max-width: 1039px) {
+    .layout { grid-template-columns: 1fr; padding: 14px; }
+    .editor { position: static; max-height: none; overflow: visible; }
+    .back-schedule { display: inline-flex; }
+    .top, .chips { padding-left: 14px; padding-right: 14px; }
+  }
+  @media (max-width: 860px) {
+    .day { min-height: 48px; padding: 2px; }
+    .day-jump { min-width: 0; min-height: 22px; max-width: 100%; }
+    .dow { font-size: 10px; letter-spacing: 0; }
+    .cal-hint { display: block; }
+    .pill-post {
+      width: 14px; height: 14px; min-height: 14px; padding: 0; border-radius: 99px;
+      font-size: 0; color: transparent; overflow: hidden;
+    }
+    .pills { flex-direction: row; flex-wrap: wrap; }
+    .pill-post.selected { outline-offset: 1px; }
+  }
+  @media (max-width: 720px) {
+    .status { align-items: flex-start; text-align: left; }
+    .top { align-items: stretch; }
+  }
+  @media (max-width: 480px) {
+    .top, .chips, .layout { padding-left: 12px; padding-right: 12px; }
+    .board, .editor, .modal-card { padding: 12px; border-radius: 14px; }
+    .chip, .text-button { flex-basis: calc(50% - 8px); }
+    .time-row, .window-row { grid-template-columns: 1fr; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .actions .primary, .actions .danger { grid-column: 1 / -1; }
+    textarea, input, select { font-size: 16px; }
+    .month { width: 100%; }
+    .board-actions { width: 100%; }
+    .board-actions button, .text-button { flex: 1 1 auto; }
+  }
+  @media (min-width: 1440px) {
+    .layout { grid-template-columns: minmax(0, 1.45fr) minmax(420px, 640px); gap: 24px; padding: 24px 40px 56px; }
+    .day { min-height: 112px; }
+    .top, .chips { padding-left: 40px; padding-right: 40px; }
   }
 </style>
 </head>
@@ -135,6 +207,11 @@ function esc(value) {
   return String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
 }
 function color(name) { return COLORS[name] || '#57534e' }
+function scrollToEditor() {
+  if (!window.matchMedia('(max-width: 1039px)').matches) return
+  const editor = $('editor')
+  if (editor) editor.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 function tally(counts) {
   const part = (count, one, many) => `${count} ${count === 1 ? one : many}`
   return `${part(counts.draft, 'draft', 'drafts')} · ${part(counts.scheduled, 'scheduled', 'scheduled')} · ${part(counts.posted, 'posted', 'posted')} · ${counts.missed} missed/failed`
@@ -315,10 +392,10 @@ function renderBoard() {
   if (heads.length) banners.push(`<div class="banner"><strong>Same-day heads-up.</strong> ${heads.map(esc).join(' · ')}</div>`)
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => `<div class="dow">${day}</div>`).join('')
   const grid = cells.map((date) => {
-    if (!date) return '<div class="day"></div>'
+    if (!date) return '<div class="day day-empty"></div>'
     const mine = posts.filter((post) => post.date === date)
-    const pills = mine.map((post) => `<button class="pill-post ${post.id === state.selectedId ? 'selected' : ''}" draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" style="background:${color(post.campaign)}">${esc(post.campaign)} ${esc(post.time || '')}</button>`).join('')
-    return `<div class="day ${date === state.data.now.date ? 'today' : ''}" data-date="${date}"><strong>${Number(date.slice(-2))}</strong>${pills}</div>`
+    const pills = mine.map((post) => `<button class="pill-post ${post.id === state.selectedId ? 'selected' : ''}" draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" style="background:${color(post.campaign)}" title="${esc(post.campaign)} ${esc(post.time || '')}"><span class="pill-label">${esc(post.campaign)} ${esc(post.time || '')}</span></button>`).join('')
+    return `<div class="day ${date === state.data.now.date ? 'today' : ''}" data-date="${date}"><button type="button" class="day-jump" data-action="jump-day" data-date="${date}">${Number(date.slice(-2))}</button><div class="pills">${pills}</div></div>`
   }).join('')
   const groups = new Map()
   const sorted = [...posts].sort((left, right) => `${left.date || '9999'} ${left.time || ''}`.localeCompare(`${right.date || '9999'} ${right.time || ''}`))
@@ -328,13 +405,14 @@ function renderBoard() {
     list.push(post)
     groups.set(key, list)
   }
-  const queue = [...groups.entries()].map(([day, list]) => `<section><h3>${esc(day)}</h3>${list.map(queueCard).join('')}</section>`).join('')
+  const queue = [...groups.entries()].map(([day, list]) => `<section class="queue-day" id="queue-${esc(day)}"><h3>${esc(day)}</h3>${list.map(queueCard).join('')}</section>`).join('')
   const editCampaign = state.campaign !== 'all' ? `<button class="ghost" data-action="edit-campaign" data-campaign="${esc(state.campaign)}">Edit campaign</button>` : ''
-  $('board').innerHTML = `${banners.join('')}<div class="board-head"><div class="month"><button class="ghost" data-action="month" data-delta="-1">←</button><h2>${label}</h2><button class="ghost" data-action="month" data-delta="1">→</button></div><div class="row">${editCampaign}<button class="primary" data-action="new-post">New tweet</button></div></div><div class="calendar">${days}${grid}</div><div class="queue">${queue || '<p class="muted">No tweets in this view yet.</p>'}</div>`
+  $('board').innerHTML = `${banners.join('')}<div class="board-head"><div class="month"><button class="ghost" data-action="month" data-delta="-1" aria-label="Previous month">←</button><h2>${label}</h2><button class="ghost" data-action="month" data-delta="1" aria-label="Next month">→</button></div><div class="board-actions">${editCampaign}<button class="primary" data-action="new-post">New tweet</button></div></div><div class="calendar">${days}${grid}</div><p class="cal-hint">Colored dots mark campaigns. Open a tweet from the list, or tap a date to jump there.</p><div class="queue">${queue || '<p class="muted">No tweets in this view yet.</p>'}</div>`
 }
 function queueCard(post) {
   const badge = post.approvalStale ? 'Needs re-approval' : post.runner
-  return `<article draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" class="${post.id === state.selectedId ? 'selected' : ''}" style="--accent:${color(post.campaign)}"><div class="row"><strong>${esc(post.id)}</strong><span>${esc(badge)}</span></div><div>${esc(post.time || 'no time')} ET · ${esc(post.text.split('\n')[0] || 'Empty draft')}</div></article>`
+  const excerpt = post.text.replace(/\s+/g, ' ').trim() || 'Empty draft'
+  return `<article draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" class="${post.id === state.selectedId ? 'selected' : ''}" style="--accent:${color(post.campaign)}"><div class="row"><strong>${esc(post.id)}</strong><span>${esc(badge)}</span></div><div class="excerpt">${esc(post.time || 'no time')} ET · ${esc(excerpt)}</div></article>`
 }
 function monthCells(year, month) {
   const first = new Date(Date.UTC(year, month - 1, 1))
@@ -354,21 +432,21 @@ function renderEditor() {
   const issues = liveIssues(editor)
   const keep = post.approval === 'approved' ? '<button class="primary" data-action="save" data-intent="keep" data-approve="1">Save & Keep Approved</button>' : ''
   $('editor').innerHTML = `
-    <div class="editor-head"><div><div class="eyebrow" style="color:${color(post.campaign)}">${esc(post.campaign)}</div><h2 style="margin:0">${esc(post.id)}</h2></div><span class="pill ${post.approval === 'approved' && !post.approvalStale ? 'armed' : 'preview'}">${esc(post.approvalStale ? 'Needs re-approval' : post.approval)}</span></div>
+    <div class="editor-head"><div class="editor-title"><div class="eyebrow" style="color:${color(post.campaign)}">${esc(post.campaign)}</div><h2>${esc(post.id)}</h2></div><span class="pill ${post.approval === 'approved' && !post.approvalStale ? 'armed' : 'preview'}">${esc(post.approvalStale ? 'Needs re-approval' : post.approval)}</span><button type="button" class="ghost back-schedule" data-action="back-schedule">Schedule</button></div>
     <p class="muted">${esc(post.runner)}${post.postedUrl ? ` · <a href="${esc(post.postedUrl)}">posted</a>` : ''}${post.lastError ? ` · ${esc(post.lastError)}` : ''}${post.runner === 'posted' ? ' · Already on X. Duplicate it to schedule another.' : ''}${post.runner === 'interrupted' ? ' · The runner left this id in posting. Check X before changing state.json.' : ''}</p>
     <label for="copy">Post copy</label>
     <textarea id="copy">${esc(editor.text)}</textarea>
     <div class="row"><span id="char-count" class="count"></span><a id="intent" href="${esc(post.intentUrl)}" target="_blank" rel="noopener">Open on X</a></div>
     <div id="issue-list"></div>
     <label for="date">Suggested or scheduled time (ET)</label>
-    <div class="row"><input id="date" type="date" value="${esc(editor.date)}"><input id="time" type="time" value="${esc(editor.time)}"></div>
+    <div class="time-row"><input id="date" type="date" value="${esc(editor.date)}"><input id="time" type="time" value="${esc(editor.time)}"></div>
     <label for="notes">Internal note (never posted)</label>
     <textarea id="notes">${esc(editor.notes)}</textarea>
     <label for="quote">Quote-tweet URL</label>
     <input id="quote" type="text" value="${esc(editor.quoteUrl)}" placeholder="https://x.com/…/status/…">
     <label>Photo or video</label>
     <div class="media" id="media-zone">
-      <div class="row"><button class="ghost" data-action="pick-file" type="button">Upload</button><button class="ghost" data-action="library" type="button">Browse library</button><button class="ghost" data-action="clear-media" type="button">Remove</button></div>
+      <div class="media-actions"><button class="ghost" data-action="pick-file" type="button">Upload</button><button class="ghost" data-action="library" type="button">Browse library</button><button class="ghost" data-action="clear-media" type="button">Remove</button></div>
       <input id="file" type="file" hidden accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.m4v,.webm,image/*,video/*">
       <label for="media-raw">Or an existing path (~/… or a repo path)</label>
       <input id="media-raw" type="text" value="${esc(editor.mediaRaw)}">
@@ -468,7 +546,7 @@ function renderModal() {
   if (!state.modal) { modal.hidden = true; modal.innerHTML = ''; return }
   modal.hidden = false
   if (state.modal.kind === 'library') {
-    const cards = state.data.media.length ? state.data.media.map((item) => `<button data-action="use-media" data-path="${esc(item.storedPath)}">${item.kind === 'image' ? `<img class="shot" alt="" src="${esc(item.url)}">` : `<video class="shot" src="${esc(item.url)}"></video>`}<div>${esc(item.storedPath.split('/').pop())}</div></button>`).join('') : '<p>No files in the local media folder yet.</p>'
+    const cards = state.data.media.length ? state.data.media.map((item) => `<button data-action="use-media" data-path="${esc(item.storedPath)}">${item.kind === 'image' ? `<img class="shot" alt="" src="${esc(item.url)}">` : `<video class="shot" src="${esc(item.url)}"></video>`}<div class="file-name">${esc(item.storedPath.split('/').pop())}</div></button>`).join('') : '<p>No files in the local media folder yet.</p>'
     modal.innerHTML = `<div class="modal-card"><div class="row"><h2>Media library</h2><button class="ghost" data-action="close-modal">Close</button></div><div class="library-grid">${cards}</div></div>`
     return
   }
@@ -525,6 +603,14 @@ async function onClick(event) {
       state.editor = editorFrom(findPost(state.selectedId))
       renderEditor()
       document.querySelectorAll('[data-id]').forEach((card) => card.classList.toggle('selected', card.dataset.id === state.selectedId))
+      scrollToEditor()
+    } else if (action === 'jump-day') {
+      const date = node.dataset.date
+      const section = date && document.getElementById(`queue-${date}`)
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      else toast('Nothing scheduled that day')
+    } else if (action === 'back-schedule') {
+      $('board').scrollIntoView({ behavior: 'smooth', block: 'start' })
     } else if (action === 'month') {
       const [year, month] = state.month.split('-').map(Number)
       const next = new Date(Date.UTC(year, month - 1 + Number(node.dataset.delta), 1))
@@ -535,6 +621,7 @@ async function onClick(event) {
       if (!campaign) { toast('Create a campaign first'); return }
       await mutate('/api/posts', { campaign })
       toast('Draft created')
+      scrollToEditor()
     } else if (action === 'save') {
       await mutate(`/api/posts/${encodeURIComponent(state.selectedId)}`, payloadFromEditor(node.dataset.intent))
       toast(node.dataset.intent === 'draft' ? 'Saved as draft' : 'Saved')
