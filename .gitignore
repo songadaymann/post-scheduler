@@ -7,7 +7,7 @@ dist/
 .env.*
 !.env.example
 
-# Runtime state, locks, and logs. Real post history stays on the machine.
+# Live library, uploads, campaign overrides, locks, and logs.
 data/
 logs/
 *.log

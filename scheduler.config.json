@@ -1,6 +1,6 @@
 {
   "timezone": "America/New_York",
-  "postsDir": "posts",
+  "postsDir": "data/posts",
   "stateDir": "data/scheduler",
   "minSpacingHours": 2,
   "staleAfterHours": 2,

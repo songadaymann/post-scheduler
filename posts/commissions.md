@@ -7,6 +7,16 @@ Optional, on its own line before the text block (path relative to the repo root,
 
 media: media/example-clip.mp4
 
+status: draft
+suggested: 2026-12-02 10:00 America/New_York
+notes: internal only
+quote: https://x.com/songadaymann/status/1
+
+status is draft or approved. Omit it and the post is approved, which is how
+these templates stay on the example schedule. Drafts are never posted.
+approvedHash is written by the studio when you approve; if the copy changes
+and the hash does not, the runner will not send it.
+
 Times are America/New_York wall times. One post per campaign per Eastern day.
 Everything from a "## Retired" heading onward is ignored.
 -->

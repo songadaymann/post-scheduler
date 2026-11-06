@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Song a Day studio</title>
+<style>
+  :root {
+    --ink: #24170f;
+    --paper: #f3ead7;
+    --card: #fffaf1;
+    --line: #e3d3b4;
+    --muted: #746657;
+    --stamp: #b8431f;
+    --moss: #1f6b45;
+    --gold: #c9891a;
+    --navy: #243e5a;
+    --shadow: 0 16px 40px rgba(60, 36, 12, 0.08);
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100vh; overflow-x: clip; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  img, video { max-width: 100%; height: auto; }
+  .top {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end;
+    gap: 16px 24px; padding: 22px 28px 18px; background: #2a1b12; color: #f6edd9;
+  }
+  .brand, .status { min-width: 0; max-width: 100%; }
+  .brand { display: flex; flex-direction: column; gap: 4px; flex: 1 1 260px; }
+  .eyebrow { letter-spacing: 0.16em; text-transform: uppercase; font-size: 11px; color: #e7c27a; }
+  h1 { margin: 0; font-family: Palatino, "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: clamp(26px, 4vw, 34px); overflow-wrap: anywhere; }
+  .sub, .queue-line, .banner, .excerpt, .file-name, .editor-title h2, .tweet-text, .issues li, .muted, .media, .actions button {
+    overflow-wrap: anywhere;
+  }
+  .sub { color: #d9cbb6; font-size: 14px; }
+  .status { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex: 1 1 240px; text-align: right; }
+  .pill { border-radius: 999px; padding: 6px 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 12px; max-width: 100%; }
+  .pill.armed { background: #d9f5e4; color: var(--moss); }
+  .pill.preview { background: #ffe7b8; color: #7a4b00; }
+  .queue-line { font-size: 14px; color: #f0e2cc; }
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 28px;
+    border-bottom: 1px solid var(--line); background: #f7f1e4;
+  }
+  .chip, .text-button, .primary, .ghost, .danger {
+    border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 8px 12px;
+  }
+  .chip, .text-button { min-width: 0; flex: 1 1 180px; text-align: left; }
+  .chip strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
+  .chip span, .muted { color: var(--muted); font-size: 12px; }
+  .chip.active { border-color: var(--ink); box-shadow: inset 4px 0 0 var(--accent, var(--ink)); }
+  .layout {
+    display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(340px, 0.8fr);
+    gap: 18px; padding: 18px 28px 40px; min-width: 0;
+  }
+  .board, .editor, .modal-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: var(--shadow); min-width: 0; max-width: 100%;
+  }
+  .board { padding: 16px; }
+  .board-head, .editor-head, .row, .media-actions {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; min-width: 0;
+  }
+  .board-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .month { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .month h2 { margin: 0; font-family: Palatino, Georgia, serif; font-size: clamp(22px, 3vw, 28px); }
+  .calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 12px; min-width: 0; }
+  .dow, .day { border-radius: 10px; padding: 6px; min-width: 0; }
+  .dow { min-height: 0; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
+  .day { min-height: 84px; background: #fbf6ec; border: 1px dashed #eadcc4; display: flex; flex-direction: column; gap: 4px; }
+  .day.today { outline: 2px solid var(--gold); }
+  .day.drop, .media.drop { background: #fff4d4; border-style: solid; }
+  .day-jump {
+    border: 0; background: transparent; padding: 0; font-weight: 700; text-align: left;
+    min-width: 28px; min-height: 28px;
+  }
+  .pills { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .pill-post, .queue article { width: 100%; text-align: left; min-width: 0; }
+  .pill-post {
+    display: block; border: 0; border-radius: 8px; padding: 4px 6px; color: white; font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  .cal-hint { display: none; margin: 8px 0 0; }
+  .queue { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; min-width: 0; }
+  .queue h3 { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .queue-day { scroll-margin-top: 12px; }
+  .queue article {
+    color: var(--ink); background: #fff; border: 1px solid var(--line); border-left: 6px solid var(--accent, var(--navy));
+    padding: 10px 12px; cursor: grab;
+  }
+  .queue article.selected, .pill-post.selected { outline: 2px solid var(--ink); }
+  .editor { padding: 16px; position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; scroll-margin-top: 12px; }
+  .editor-title { min-width: 0; flex: 1 1 160px; }
+  .editor-title h2 { margin: 0; }
+  .back-schedule { display: none; }
+  textarea, input[type="text"], input[type="date"], input[type="time"], select {
+    width: 100%; max-width: 100%; min-width: 0; border: 1px solid var(--line); background: #fffdf8; border-radius: 10px; padding: 8px 10px;
+  }
+  textarea { min-height: 140px; resize: vertical; line-height: 1.45; }
+  .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .actions button, .media-actions button, .board-actions button, .month button, .text-button {
+    min-height: 40px; min-width: 0; white-space: normal;
+  }
+  .primary { background: var(--ink); color: #fffaf1; border-color: var(--ink); }
+  .danger { background: #fff1ea; border-color: #e7b2a1; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .count.over { color: var(--stamp); }
+  .issues { margin: 8px 0 0; padding-left: 18px; }
+  .issues li.error { color: var(--stamp); }
+  .issues li.warning { color: #8a5a00; }
+  .preview { margin-top: 14px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: white; min-width: 0; }
+  .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .who div { min-width: 0; }
+  .avatar { width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; display: grid; place-items: center; background: #f0d48a; font-weight: 800; }
+  .tweet-text { white-space: pre-wrap; margin: 10px 0; line-height: 1.4; }
+  .tweet-text:empty::before { content: "The post preview will show up here."; color: var(--muted); }
+  video, img.shot { width: 100%; border-radius: 12px; max-height: min(240px, 40vh); object-fit: contain; background: #111; }
+  .media { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; background: #fffdf8; min-width: 0; }
+  .banner { background: #fff4e8; border: 1px solid #efd0a4; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+  .banner.error { background: #fff1ea; border-color: #e7b2a1; }
+  .modal { position: fixed; inset: 0; background: rgba(36, 23, 15, 0.45); display: grid; place-items: center; padding: 12px; }
+  .modal[hidden] { display: none; }
+  .modal-card { width: min(560px, 100%); padding: 16px; max-height: min(86vh, 100%); overflow: auto; }
+  .toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: max-content; max-width: calc(100% - 32px); background: var(--ink); color: white;
+    padding: 10px 14px; border-radius: 16px; text-align: center; overflow-wrap: anywhere;
+  }
+  .toast[hidden] { display: none; }
+  .window-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; margin-bottom: 8px; }
+  .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); gap: 8px; }
+  .library-grid button { padding: 6px; min-width: 0; }
+  @media (max-width: 1039px) {
+    .layout { grid-template-columns: 1fr; padding: 14px; }
+    .editor { position: static; max-height: none; overflow: visible; }
+    .back-schedule { display: inline-flex; }
+    .top, .chips { padding-left: 14px; padding-right: 14px; }
+  }
+  @media (max-width: 860px) {
+    .day { min-height: 48px; padding: 2px; }
+    .day-jump { min-width: 0; min-height: 22px; max-width: 100%; }
+    .dow { font-size: 10px; letter-spacing: 0; }
+    .cal-hint { display: block; }
+    .pill-post {
+      width: 14px; height: 14px; min-height: 14px; padding: 0; border-radius: 99px;
+      font-size: 0; color: transparent; overflow: hidden;
+    }
+    .pills { flex-direction: row; flex-wrap: wrap; }
+    .pill-post.selected { outline-offset: 1px; }
+  }
+  @media (max-width: 720px) {
+    .status { align-items: flex-start; text-align: left; }
+    .top { align-items: stretch; }
+  }
+  @media (max-width: 480px) {
+    .top, .chips, .layout { padding-left: 12px; padding-right: 12px; }
+    .board, .editor, .modal-card { padding: 12px; border-radius: 14px; }
+    .chip, .text-button { flex-basis: calc(50% - 8px); }
+    .time-row, .window-row { grid-template-columns: 1fr; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .actions .primary, .actions .danger { grid-column: 1 / -1; }
+    textarea, input, select { font-size: 16px; }
+    .month { width: 100%; }
+    .board-actions { width: 100%; }
+    .board-actions button, .text-button { flex: 1 1 auto; }
+  }
+  @media (min-width: 1440px) {
+    .layout { grid-template-columns: minmax(0, 1.45fr) minmax(420px, 640px); gap: 24px; padding: 24px 40px 56px; }
+    .day { min-height: 112px; }
+    .top, .chips { padding-left: 40px; padding-right: 40px; }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <div class="eyebrow">America/New_York</div>
+      <h1>Song a Day studio</h1>
+      <div class="sub" id="library-path">Campaign desk for commissions, WAMP, donations, and the rest.</div>
+    </div>
+    <div class="status">
+      <div id="runner-pill" class="pill preview">Preview</div>
+      <div id="runner-detail" class="sub"></div>
+      <div id="queue-line" class="queue-line"></div>
+    </div>
+  </header>
+  <nav class="chips" id="chips"></nav>
+  <main class="layout" id="app">
+    <section class="board" id="board"></section>
+    <aside class="editor" id="editor"></aside>
+  </main>
+  <div id="modal" class="modal" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+<script>
+const COLORS = { commissions: '#c2410c', wamp: '#0f766e', donations: '#6d28d9', reshares: '#1d4ed8' }
+const state = { data: null, campaign: 'all', month: null, selectedId: null, editor: null, modal: null }
+
+const $ = (id) => document.getElementById(id)
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]))
+}
+function color(name) { return COLORS[name] || '#57534e' }
+function scrollToEditor() {
+  if (!window.matchMedia('(max-width: 1039px)').matches) return
+  const editor = $('editor')
+  if (editor) editor.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+function tally(counts) {
+  const part = (count, one, many) => `${count} ${count === 1 ? one : many}`
+  return `${part(counts.draft, 'draft', 'drafts')} · ${part(counts.scheduled, 'scheduled', 'scheduled')} · ${part(counts.posted, 'posted', 'posted')} · ${counts.missed} missed/failed`
+}
+function toast(message) {
+  const node = $('toast')
+  node.hidden = false
+  node.textContent = message
+  clearTimeout(toast.timer)
+  toast.timer = setTimeout(() => { node.hidden = true }, 3200)
+}
+async function refresh() {
+  const response = await fetch('/api/bootstrap')
+  const body = await response.json()
+  if (!response.ok) throw new Error(body.error || 'Could not load the studio')
+  state.data = body
+  if (!state.month) state.month = (body.queue.next && body.queue.next.label.slice(0, 7)) || body.now.date.slice(0, 7)
+  if (state.selectedId && !body.posts.some((post) => post.id === state.selectedId)) state.selectedId = null
+  render()
+}
+async function mutate(url, payload, method = 'POST') {
+  const response = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload || {}),
+  })
+  const body = await response.json()
+  if (!response.ok) throw new Error(body.error || 'Request failed')
+  if (body.bootstrap) state.data = body.bootstrap
+  if (body.selectedId) {
+    state.selectedId = body.selectedId
+    state.editor = null
+  }
+  if (body.message) toast(body.message)
+  render()
+  return body
+}
+function findPost(id) { return state.data.posts.find((post) => post.id === id) }
+function campaignOf(name) { return state.data.campaigns.find((campaign) => campaign.name === name) }
+function visiblePosts() {
+  return state.data.posts.filter((post) => state.campaign === 'all' || post.campaign === state.campaign)
+}
+function editorFrom(post) {
+  return {
+    id: post.id,
+    campaign: post.campaign,
+    text: post.text,
+    notes: post.notes,
+    quoteUrl: post.quoteUrl,
+    date: post.date || '',
+    time: post.time || '',
+    mediaRaw: post.mediaRaw || '',
+    mediaUrl: post.mediaUrl,
+    mediaKind: post.mediaKind,
+    savedText: post.text,
+    savedQuote: post.quoteUrl,
+    savedMedia: post.mediaRaw || '',
+    dirty: false,
+  }
+}
+function readEditor() {
+  if (!state.editor) return null
+  const copy = $('copy')
+  if (!copy) return state.editor
+  state.editor.text = copy.value
+  state.editor.notes = $('notes').value
+  state.editor.quoteUrl = $('quote').value
+  state.editor.date = $('date').value
+  state.editor.time = $('time').value
+  state.editor.mediaRaw = $('media-raw').value.trim()
+  return state.editor
+}
+function copyDirty(editor) {
+  return editor.text !== editor.savedText || editor.quoteUrl !== editor.savedQuote || editor.mediaRaw !== editor.savedMedia
+}
+function liveIssues(editor) {
+  const errors = []
+  const warnings = []
+  const limit = state.data.tweetLimit
+  const length = Array.from(editor.text).length
+  if (editor.text.trim() === '') errors.push('Text is empty')
+  if (length > limit) errors.push(`Text is ${length} characters (limit ${limit})`)
+  const campaign = campaignOf(editor.campaign)
+  for (const phrase of campaign?.bannedPhrases || []) {
+    if (editor.text.toLowerCase().includes(phrase.toLowerCase())) errors.push(`Banned for ${editor.campaign}: ${phrase}`)
+  }
+  if (editor.date && editor.time && campaign?.windows?.length) {
+    const seconds = clockSeconds(editor.time)
+    const inside = campaign.windows.some((window) => seconds >= clockSeconds(window.start) && seconds < clockSeconds(window.end))
+    if (!inside) {
+      const message = `Outside the ${editor.campaign} window (${campaign.windows.map((window) => `${window.start}–${window.end}`).join(' or ')} ET)`
+      const mode = campaign.outsideWindow || state.data.config.outsideWindow
+      if (mode === 'warn') warnings.push(message)
+      else errors.push(message)
+    }
+  }
+  if (editor.date && editor.time) {
+    const mine = wallMillis(editor.date, editor.time)
+    const spacing = state.data.config.minSpacingHours * 3600000
+    const seen = new Set()
+    for (const post of state.data.posts) {
+      if (post.id === editor.id || !post.date || !post.time) continue
+      if (post.date === editor.date && post.campaign === editor.campaign) {
+        errors.push(`More than one ${editor.campaign} post on ${editor.date} ET`)
+      } else if (post.date === editor.date && !seen.has(post.date)) {
+        warnings.push(`${editor.campaign} and ${post.campaign} both land on ${editor.date} ET`)
+        seen.add(post.date)
+      }
+      if (post.campaign !== editor.campaign) {
+        const gap = Math.abs(wallMillis(post.date, post.time) - mine)
+        if (gap < spacing) errors.push(`Under the ${state.data.config.minSpacingHours} hour gap with ${post.id}`)
+      }
+    }
+  } else {
+    warnings.push('No send time yet')
+  }
+  const extension = (editor.mediaRaw.split('.').pop() || '').toLowerCase()
+  if (editor.mediaRaw && !['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'm4v', 'webm'].includes(extension)) {
+    errors.push('Media must be jpg, jpeg, png, gif, webp, mp4, mov, m4v, or webm')
+  }
+  const saved = findPost(editor.id)
+  if (saved && editor.mediaRaw === (saved.mediaRaw || '')) {
+    for (const issue of saved.errors) {
+      if (/media|video|duration|ffprobe/i.test(issue) && !errors.includes(issue)) errors.push(issue)
+    }
+    for (const issue of saved.warnings) {
+      if (/ffprobe|duration/i.test(issue) && !warnings.includes(issue)) warnings.push(issue)
+    }
+  }
+  return { errors, warnings, length }
+}
+function clockSeconds(value) {
+  const [hour, minute] = value.split(':').map(Number)
+  return hour * 3600 + minute * 60
+}
+function wallMillis(date, time) {
+  const [year, month, day] = date.split('-').map(Number)
+  const [hour, minute] = time.split(':').map(Number)
+  return Date.UTC(year, month - 1, day, hour, minute)
+}
+function render() {
+  const data = state.data
+  $('library-path').textContent = `Library ${data.config.postsDir} · media ${data.config.mediaDir}`
+  const pill = $('runner-pill')
+  pill.textContent = data.runner.armed ? 'Armed' : 'Preview / dry-run'
+  pill.className = `pill ${data.runner.armed ? 'armed' : 'preview'}`
+  $('runner-detail').textContent = data.runner.detail
+  const next = data.queue.next ? `Next ${data.queue.next.campaign} ${data.queue.next.label}` : 'No approved post is waiting'
+  $('queue-line').textContent = `${data.queue.upcoming} upcoming · ${data.queue.due} due · ${data.queue.missed} missed/failed · ${next}`
+  renderChips()
+  renderBoard()
+  if (state.selectedId) state.editor = editorFrom(findPost(state.selectedId))
+  else state.editor = null
+  renderEditor()
+  renderModal()
+}
+function renderChips() {
+  const totals = { draft: 0, scheduled: 0, posted: 0, missed: 0 }
+  for (const campaign of state.data.campaigns) {
+    for (const key of Object.keys(totals)) totals[key] += campaign.counts[key]
+  }
+  const chips = [`<button class="chip ${state.campaign === 'all' ? 'active' : ''}" data-action="campaign" data-campaign="all"><strong>All campaigns</strong><span>${tally(totals)}</span></button>`]
+  for (const campaign of state.data.campaigns) {
+    const counts = campaign.counts
+    chips.push(`<button class="chip ${state.campaign === campaign.name ? 'active' : ''}" data-action="campaign" data-campaign="${esc(campaign.name)}" style="--accent:${color(campaign.name)}"><strong>${esc(campaign.name)}</strong><span>${tally(counts)}</span></button>`)
+  }
+  chips.push('<button class="text-button" data-action="new-campaign">New campaign</button>')
+  $('chips').innerHTML = chips.join('')
+}
+function renderBoard() {
+  const [year, month] = state.month.split('-').map(Number)
+  const label = new Date(Date.UTC(year, month - 1, 1)).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  const cells = monthCells(year, month)
+  const posts = visiblePosts()
+  const heads = state.data.headsUps.filter((line) => state.campaign === 'all' || line.includes(state.campaign))
+  const banners = []
+  if (state.data.libraryErrors.length) banners.push(`<div class="banner error">${state.data.libraryErrors.map(esc).join('<br>')}</div>`)
+  if (heads.length) banners.push(`<div class="banner"><strong>Same-day heads-up.</strong> ${heads.map(esc).join(' · ')}</div>`)
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => `<div class="dow">${day}</div>`).join('')
+  const grid = cells.map((date) => {
+    if (!date) return '<div class="day day-empty"></div>'
+    const mine = posts.filter((post) => post.date === date)
+    const pills = mine.map((post) => `<button class="pill-post ${post.id === state.selectedId ? 'selected' : ''}" draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" style="background:${color(post.campaign)}" title="${esc(post.campaign)} ${esc(post.time || '')}"><span class="pill-label">${esc(post.campaign)} ${esc(post.time || '')}</span></button>`).join('')
+    return `<div class="day ${date === state.data.now.date ? 'today' : ''}" data-date="${date}"><button type="button" class="day-jump" data-action="jump-day" data-date="${date}">${Number(date.slice(-2))}</button><div class="pills">${pills}</div></div>`
+  }).join('')
+  const groups = new Map()
+  const sorted = [...posts].sort((left, right) => `${left.date || '9999'} ${left.time || ''}`.localeCompare(`${right.date || '9999'} ${right.time || ''}`))
+  for (const post of sorted) {
+    const key = post.date || 'Unscheduled'
+    const list = groups.get(key) || []
+    list.push(post)
+    groups.set(key, list)
+  }
+  const queue = [...groups.entries()].map(([day, list]) => `<section class="queue-day" id="queue-${esc(day)}"><h3>${esc(day)}</h3>${list.map(queueCard).join('')}</section>`).join('')
+  const editCampaign = state.campaign !== 'all' ? `<button class="ghost" data-action="edit-campaign" data-campaign="${esc(state.campaign)}">Edit campaign</button>` : ''
+  $('board').innerHTML = `${banners.join('')}<div class="board-head"><div class="month"><button class="ghost" data-action="month" data-delta="-1" aria-label="Previous month">←</button><h2>${label}</h2><button class="ghost" data-action="month" data-delta="1" aria-label="Next month">→</button></div><div class="board-actions">${editCampaign}<button class="primary" data-action="new-post">New tweet</button></div></div><div class="calendar">${days}${grid}</div><p class="cal-hint">Colored dots mark campaigns. Open a tweet from the list, or tap a date to jump there.</p><div class="queue">${queue || '<p class="muted">No tweets in this view yet.</p>'}</div>`
+}
+function queueCard(post) {
+  const badge = post.approvalStale ? 'Needs re-approval' : post.runner
+  const excerpt = post.text.replace(/\s+/g, ' ').trim() || 'Empty draft'
+  return `<article draggable="true" data-drag="${esc(post.id)}" data-action="select" data-id="${esc(post.id)}" class="${post.id === state.selectedId ? 'selected' : ''}" style="--accent:${color(post.campaign)}"><div class="row"><strong>${esc(post.id)}</strong><span>${esc(badge)}</span></div><div class="excerpt">${esc(post.time || 'no time')} ET · ${esc(excerpt)}</div></article>`
+}
+function monthCells(year, month) {
+  const first = new Date(Date.UTC(year, month - 1, 1))
+  const count = new Date(Date.UTC(year, month, 0)).getUTCDate()
+  const cells = Array(first.getUTCDay()).fill(null)
+  for (let day = 1; day <= count; day += 1) cells.push(`${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`)
+  while (cells.length % 7) cells.push(null)
+  return cells
+}
+function renderEditor() {
+  const post = state.selectedId ? findPost(state.selectedId) : null
+  const editor = state.editor
+  if (!post || !editor) {
+    $('editor').innerHTML = `<h2>Tweet editor</h2><p class="muted">Select a draft or create a tweet. Nothing here is posted until you mark it approved and the runner is armed.</p><button class="primary" data-action="new-post">New tweet</button>`
+    return
+  }
+  const issues = liveIssues(editor)
+  const keep = post.approval === 'approved' ? '<button class="primary" data-action="save" data-intent="keep" data-approve="1">Save & Keep Approved</button>' : ''
+  $('editor').innerHTML = `
+    <div class="editor-head"><div class="editor-title"><div class="eyebrow" style="color:${color(post.campaign)}">${esc(post.campaign)}</div><h2>${esc(post.id)}</h2></div><span class="pill ${post.approval === 'approved' && !post.approvalStale ? 'armed' : 'preview'}">${esc(post.approvalStale ? 'Needs re-approval' : post.approval)}</span><button type="button" class="ghost back-schedule" data-action="back-schedule">Schedule</button></div>
+    <p class="muted">${esc(post.runner)}${post.postedUrl ? ` · <a href="${esc(post.postedUrl)}">posted</a>` : ''}${post.lastError ? ` · ${esc(post.lastError)}` : ''}${post.runner === 'posted' ? ' · Already on X. Duplicate it to schedule another.' : ''}${post.runner === 'interrupted' ? ' · The runner left this id in posting. Check X before changing state.json.' : ''}</p>
+    <label for="copy">Post copy</label>
+    <textarea id="copy">${esc(editor.text)}</textarea>
+    <div class="row"><span id="char-count" class="count"></span><a id="intent" href="${esc(post.intentUrl)}" target="_blank" rel="noopener">Open on X</a></div>
+    <div id="issue-list"></div>
+    <label for="date">Suggested or scheduled time (ET)</label>
+    <div class="time-row"><input id="date" type="date" value="${esc(editor.date)}"><input id="time" type="time" value="${esc(editor.time)}"></div>
+    <label for="notes">Internal note (never posted)</label>
+    <textarea id="notes">${esc(editor.notes)}</textarea>
+    <label for="quote">Quote-tweet URL</label>
+    <input id="quote" type="text" value="${esc(editor.quoteUrl)}" placeholder="https://x.com/…/status/…">
+    <label>Photo or video</label>
+    <div class="media" id="media-zone">
+      <div class="media-actions"><button class="ghost" data-action="pick-file" type="button">Upload</button><button class="ghost" data-action="library" type="button">Browse library</button><button class="ghost" data-action="clear-media" type="button">Remove</button></div>
+      <input id="file" type="file" hidden accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.mov,.m4v,.webm,image/*,video/*">
+      <label for="media-raw">Or an existing path (~/… or a repo path)</label>
+      <input id="media-raw" type="text" value="${esc(editor.mediaRaw)}">
+      <div id="media-preview"></div>
+    </div>
+    <div class="actions">
+      <button class="ghost" data-action="save" data-intent="draft">Save draft</button>
+      <button class="primary" data-action="save" data-intent="approve" data-approve="1">Approve</button>
+      ${keep}
+      <button class="ghost" data-action="suggest">Suggest next open slot</button>
+      <button class="ghost" data-action="shift" data-days="1">+1 day</button>
+      <button class="ghost" data-action="shift" data-minutes="60">+1 hour</button>
+      <button class="ghost" data-action="save-time">Save time</button>
+      ${post.runner === 'missed' || post.runner === 'failed' ? '<button class="primary" data-action="reschedule">Reschedule</button>' : ''}
+      <button class="ghost" data-action="duplicate">Duplicate</button>
+      <button class="danger" data-action="retire">Retire</button>
+    </div>
+    <article class="preview">
+      <div class="who"><div class="avatar">JM</div><div><strong>Jonathan Mann</strong><div class="muted">@${esc(state.data.handle)}</div></div></div>
+      <p class="tweet-text" id="preview-text"></p>
+      <div id="preview-media"></div>
+      <div class="muted" id="preview-quote"></div>
+      <div class="muted" id="preview-time"></div>
+    </article>`
+  bindEditor()
+  paintEditor()
+}
+function bindEditor() {
+  for (const id of ['copy', 'notes', 'quote', 'date', 'time', 'media-raw']) {
+    $(id).addEventListener('input', () => { readEditor(); state.editor.dirty = true; paintEditor() })
+  }
+  $('file').addEventListener('change', () => {
+    const file = $('file').files && $('file').files[0]
+    if (file) uploadFile(file)
+  })
+  const zone = $('media-zone')
+  zone.addEventListener('dragover', (event) => { event.preventDefault(); zone.classList.add('drop') })
+  zone.addEventListener('dragleave', () => zone.classList.remove('drop'))
+  zone.addEventListener('drop', (event) => {
+    if (!event.dataTransfer.files || !event.dataTransfer.files.length) return
+    event.preventDefault()
+    event.stopPropagation()
+    zone.classList.remove('drop')
+    uploadFile(event.dataTransfer.files[0])
+  })
+}
+function paintEditor() {
+  const editor = readEditor()
+  if (!editor || !$('preview-text')) return
+  const issues = liveIssues(editor)
+  $('preview-text').textContent = editor.text
+  $('char-count').textContent = `${issues.length} / ${state.data.tweetLimit}`
+  $('char-count').className = `count ${issues.length > state.data.tweetLimit ? 'over' : ''}`
+  $('issue-list').innerHTML = `<ul class="issues">${issues.errors.map((issue) => `<li class="error">${esc(issue)}</li>`).join('')}${issues.warnings.map((issue) => `<li class="warning">${esc(issue)}</li>`).join('')}</ul>`
+  document.querySelectorAll('[data-approve]').forEach((button) => { button.disabled = issues.errors.length > 0 })
+  const params = new URLSearchParams()
+  if (editor.text) params.set('text', editor.text)
+  if (editor.quoteUrl) params.set('url', editor.quoteUrl)
+  $('intent').href = params.toString() ? `https://x.com/intent/post?${params}` : 'https://x.com/intent/post'
+  const quote = $('preview-quote')
+  quote.textContent = editor.quoteUrl ? `Quote ${editor.quoteUrl}` : ''
+  $('preview-time').textContent = editor.date && editor.time ? `${editor.date} ${editor.time} ET` : 'No time yet'
+  const preview = $('preview-media')
+  const kind = mediaKindOf(editor.mediaRaw) || editor.mediaKind
+  const src = editor.mediaUrl && editor.mediaRaw === (findPost(editor.id)?.mediaRaw || editor.mediaRaw) ? editor.mediaUrl : (editor.mediaRaw ? `/api/media/preview?path=${encodeURIComponent(editor.mediaRaw)}` : '')
+  if (src && kind === 'image') preview.innerHTML = `<img class="shot" alt="" src="${esc(src)}">`
+  else if (src && kind === 'video') preview.innerHTML = `<video class="shot" controls src="${esc(src)}"></video>`
+  else preview.innerHTML = editor.mediaRaw ? `<div class="muted">${esc(editor.mediaRaw)}</div>` : ''
+  const inline = $('media-preview')
+  if (inline) inline.innerHTML = preview.innerHTML
+}
+function mediaKindOf(path) {
+  const extension = (path.split('.').pop() || '').toLowerCase()
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return 'image'
+  if (['mp4', 'mov', 'm4v', 'webm'].includes(extension)) return 'video'
+  return null
+}
+async function uploadFile(file) {
+  try {
+    const response = await fetch('/api/media', { method: 'POST', headers: { 'X-Filename': file.name }, body: file })
+    const body = await response.json()
+    if (!response.ok) throw new Error(body.error || 'Upload failed')
+    readEditor()
+    state.editor.mediaRaw = body.mediaRaw
+    state.editor.mediaUrl = body.url
+    state.editor.mediaKind = body.kind
+    state.editor.dirty = true
+    if ($('media-raw')) $('media-raw').value = body.mediaRaw
+    paintEditor()
+    toast('Attached. Save the tweet to keep it.')
+  } catch (error) {
+    toast(error.message)
+  }
+}
+function renderModal() {
+  const modal = $('modal')
+  if (!state.modal) { modal.hidden = true; modal.innerHTML = ''; return }
+  modal.hidden = false
+  if (state.modal.kind === 'library') {
+    const cards = state.data.media.length ? state.data.media.map((item) => `<button data-action="use-media" data-path="${esc(item.storedPath)}">${item.kind === 'image' ? `<img class="shot" alt="" src="${esc(item.url)}">` : `<video class="shot" src="${esc(item.url)}"></video>`}<div class="file-name">${esc(item.storedPath.split('/').pop())}</div></button>`).join('') : '<p>No files in the local media folder yet.</p>'
+    modal.innerHTML = `<div class="modal-card"><div class="row"><h2>Media library</h2><button class="ghost" data-action="close-modal">Close</button></div><div class="library-grid">${cards}</div></div>`
+    return
+  }
+  const editing = state.modal.campaign
+  const windows = editing ? editing.windows : [{ start: '09:00', end: '12:00' }]
+  modal.innerHTML = `<form class="modal-card" data-action="save-campaign">
+    <div class="row"><h2>${editing ? 'Edit campaign' : 'New campaign'}</h2><button class="ghost" type="button" data-action="close-modal">Close</button></div>
+    <label>Name</label>
+    <input name="name" required value="${esc(editing ? editing.name : '')}" ${editing ? 'readonly' : ''} placeholder="reshares">
+    <label>Windows (Eastern, start inclusive, end exclusive)</label>
+    <div id="windows">${windows.map(windowRow).join('')}</div>
+    <button class="ghost" type="button" data-action="add-window">Add window</button>
+    <label>Outside the window</label>
+    <select name="outsideWindow">
+      <option value="" ${!editing || !editing.outsideWindow ? 'selected' : ''}>Library default (${esc(state.data.config.outsideWindow)})</option>
+      <option value="warn" ${editing && editing.outsideWindow === 'warn' ? 'selected' : ''}>Warn</option>
+      <option value="fail" ${editing && editing.outsideWindow === 'fail' ? 'selected' : ''}>Fail</option>
+    </select>
+    <label>Banned phrases, one per line</label>
+    <textarea name="phrases">${esc((editing ? editing.bannedPhrases : []).join('\n'))}</textarea>
+    <div class="actions"><button class="primary" type="submit">Save campaign</button></div>
+  </form>`
+}
+function windowRow(window) {
+  return `<div class="window-row"><input name="start" type="time" value="${esc(window.start)}"><input name="end" type="time" value="${esc(window.end)}"><button type="button" class="ghost" data-action="remove-window">Remove</button></div>`
+}
+function payloadFromEditor(intent) {
+  const editor = readEditor()
+  const body = {
+    text: editor.text,
+    notes: editor.notes,
+    quoteUrl: editor.quoteUrl,
+    mediaRaw: editor.mediaRaw,
+    date: editor.date || null,
+    time: editor.time || null,
+  }
+  if (intent === 'draft') body.approval = 'draft'
+  if (intent === 'approve' || intent === 'keep') body.approval = 'approved'
+  if (intent === 'keep') body.keepApproved = true
+  return body
+}
+async function onClick(event) {
+  const node = event.target.closest('[data-action]')
+  if (!node) return
+  const action = node.dataset.action
+  try {
+    if (action === 'campaign') {
+      if (state.editor?.dirty && !confirm('Discard unsaved edits?')) return
+      state.campaign = node.dataset.campaign
+      render()
+    } else if (action === 'select') {
+      if (state.editor?.dirty && node.dataset.id !== state.selectedId && !confirm('Discard unsaved edits?')) return
+      state.selectedId = node.dataset.id
+      state.editor = editorFrom(findPost(state.selectedId))
+      renderEditor()
+      document.querySelectorAll('[data-id]').forEach((card) => card.classList.toggle('selected', card.dataset.id === state.selectedId))
+      scrollToEditor()
+    } else if (action === 'jump-day') {
+      const date = node.dataset.date
+      const section = date && document.getElementById(`queue-${date}`)
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      else toast('Nothing scheduled that day')
+    } else if (action === 'back-schedule') {
+      $('board').scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else if (action === 'month') {
+      const [year, month] = state.month.split('-').map(Number)
+      const next = new Date(Date.UTC(year, month - 1 + Number(node.dataset.delta), 1))
+      state.month = `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, '0')}`
+      renderBoard()
+    } else if (action === 'new-post') {
+      const campaign = state.campaign !== 'all' ? state.campaign : (state.data.campaigns[0] && state.data.campaigns[0].name)
+      if (!campaign) { toast('Create a campaign first'); return }
+      await mutate('/api/posts', { campaign })
+      toast('Draft created')
+      scrollToEditor()
+    } else if (action === 'save') {
+      await mutate(`/api/posts/${encodeURIComponent(state.selectedId)}`, payloadFromEditor(node.dataset.intent))
+      toast(node.dataset.intent === 'draft' ? 'Saved as draft' : 'Saved')
+    } else if (action === 'save-time') {
+      const editor = readEditor()
+      if (copyDirty(editor)) { toast('Save the copy first, then change the time.'); return }
+      await mutate(`/api/posts/${encodeURIComponent(editor.id)}`, { date: editor.date || null, time: editor.time || null })
+    } else if (action === 'shift') {
+      const editor = readEditor()
+      if (copyDirty(editor)) { toast('Save the copy first, then change the time.'); return }
+      const body = {}
+      if (node.dataset.days) body.shiftDays = Number(node.dataset.days)
+      if (node.dataset.minutes) body.shiftMinutes = Number(node.dataset.minutes)
+      await mutate(`/api/posts/${encodeURIComponent(editor.id)}`, body)
+    } else if (action === 'suggest') {
+      const response = await fetch(`/api/posts/${encodeURIComponent(state.selectedId)}/suggest`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      const body = await response.json()
+      if (!response.ok) throw new Error(body.error || 'No open slot')
+      $('date').value = body.date
+      $('time').value = body.time
+      readEditor()
+      state.editor.dirty = true
+      paintEditor()
+      toast(`Next open slot ${body.label}`)
+    } else if (action === 'reschedule') {
+      await mutate(`/api/posts/${encodeURIComponent(state.selectedId)}/reschedule`, { next: true })
+    } else if (action === 'duplicate') {
+      await mutate(`/api/posts/${encodeURIComponent(state.selectedId)}/duplicate`, {})
+    } else if (action === 'retire') {
+      if (!confirm('Retire this tweet? It leaves the schedule.')) return
+      const id = state.selectedId
+      await mutate(`/api/posts/${encodeURIComponent(id)}/retire`, {})
+      state.selectedId = null
+      render()
+    } else if (action === 'pick-file') {
+      $('file').click()
+    } else if (action === 'library') {
+      state.modal = { kind: 'library' }
+      renderModal()
+    } else if (action === 'clear-media') {
+      readEditor()
+      state.editor.mediaRaw = ''
+      state.editor.mediaUrl = null
+      state.editor.mediaKind = null
+      state.editor.dirty = true
+      $('media-raw').value = ''
+      paintEditor()
+    } else if (action === 'use-media') {
+      readEditor()
+      state.editor.mediaRaw = node.dataset.path
+      state.editor.mediaKind = mediaKindOf(node.dataset.path)
+      state.editor.dirty = true
+      state.modal = null
+      renderEditor()
+    } else if (action === 'close-modal') {
+      state.modal = null
+      renderModal()
+    } else if (action === 'new-campaign') {
+      state.modal = { kind: 'campaign', campaign: null }
+      renderModal()
+    } else if (action === 'edit-campaign') {
+      state.modal = { kind: 'campaign', campaign: campaignOf(node.dataset.campaign) }
+      renderModal()
+    } else if (action === 'add-window') {
+      $('windows').insertAdjacentHTML('beforeend', windowRow({ start: '12:00', end: '15:00' }))
+    } else if (action === 'remove-window') {
+      node.closest('.window-row').remove()
+    }
+  } catch (error) {
+    toast(error.message)
+  }
+}
+async function onSubmit(event) {
+  const form = event.target.closest('[data-action="save-campaign"]')
+  if (!form) return
+  event.preventDefault()
+  const starts = [...form.querySelectorAll('input[name="start"]')]
+  const ends = [...form.querySelectorAll('input[name="end"]')]
+  const windows = starts.map((start, index) => ({ start: start.value, end: ends[index].value })).filter((window) => window.start && window.end)
+  try {
+    await mutate('/api/campaigns', {
+      name: form.name.value.trim(),
+      windows,
+      outsideWindow: form.outsideWindow.value || null,
+      bannedPhrases: form.phrases.value.split(/\n/).map((line) => line.trim()).filter(Boolean),
+    })
+    state.campaign = form.name.value.trim()
+    state.modal = null
+    render()
+    toast('Campaign saved')
+  } catch (error) {
+    toast(error.message)
+  }
+}
+function onDragStart(event) {
+  const item = event.target.closest('[data-drag]')
+  if (!item) return
+  event.dataTransfer.setData('text/plain', item.dataset.drag)
+  event.dataTransfer.effectAllowed = 'move'
+}
+function onDragOver(event) {
+  const day = event.target.closest('[data-date]')
+  if (!day) return
+  event.preventDefault()
+  day.classList.add('drop')
+}
+function onDragLeave(event) {
+  const day = event.target.closest('[data-date]')
+  if (day) day.classList.remove('drop')
+}
+async function onDrop(event) {
+  const day = event.target.closest('[data-date]')
+  if (!day) return
+  event.preventDefault()
+  day.classList.remove('drop')
+  const id = event.dataTransfer.getData('text/plain')
+  const post = findPost(id)
+  if (!post) return
+  if (state.editor && state.editor.id === id && copyDirty(readEditor())) {
+    toast('Save the copy first, then drag the time.')
+    return
+  }
+  const campaign = campaignOf(post.campaign)
+  const time = post.time || (campaign && campaign.windows[0] && campaign.windows[0].start) || '10:00'
+  try {
+    await mutate(`/api/posts/${encodeURIComponent(id)}`, { date: day.dataset.date, time })
+    toast(`Moved to ${day.dataset.date}`)
+  } catch (error) {
+    toast(error.message)
+  }
+}
+document.body.addEventListener('click', onClick)
+document.body.addEventListener('submit', onSubmit)
+document.body.addEventListener('dragstart', onDragStart)
+document.body.addEventListener('dragover', onDragOver)
+document.body.addEventListener('dragleave', onDragLeave)
+document.body.addEventListener('drop', onDrop)
+window.addEventListener('dragover', (event) => {
+  if (event.dataTransfer && [...event.dataTransfer.types].includes('Files')) event.preventDefault()
+})
+window.addEventListener('drop', (event) => {
+  if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length) event.preventDefault()
+})
+refresh().catch((error) => { document.body.insertAdjacentHTML('beforeend', `<p class="banner error">${esc(error.message)}</p>`) })
+</script>
+</body>
+</html>
