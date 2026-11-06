@@ -1,0 +1,27 @@
+{
+  "name": "post-scheduler",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Post pre-approved X posts at fixed times without campaign collisions.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "self-test": "tsx src/cli.ts --self-test",
+    "preview": "tsx src/cli.ts --preview",
+    "start": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.3",
+    "luxon": "^3.5.0",
+    "twitter-api-v2": "^1.18.2"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^2.1.27",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

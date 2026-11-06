@@ -1,0 +1,32 @@
+{
+  "timezone": "America/New_York",
+  "postsDir": "posts",
+  "stateDir": "data/scheduler",
+  "minSpacingHours": 2,
+  "staleAfterHours": 2,
+  "outsideWindow": "fail",
+  "campaigns": {
+    "commissions": {
+      "bannedPhrases": [
+        "donate",
+        "donation",
+        "gift to the studio",
+        "tax-deductible",
+        "tax deductible",
+        "patron"
+      ],
+      "windows": [{ "start": "09:00", "end": "12:00" }]
+    },
+    "wamp": {
+      "outsideWindow": "fail",
+      "windows": [
+        { "start": "12:00", "end": "15:00" },
+        { "start": "19:00", "end": "22:00" }
+      ]
+    },
+    "donations": {
+      "outsideWindow": "warn",
+      "windows": [{ "start": "15:00", "end": "18:00" }]
+    }
+  }
+}

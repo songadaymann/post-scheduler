@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.songaday.post-scheduler</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/YOURNAME/Projects/post-scheduler</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/Users/YOURNAME/Projects/post-scheduler/node_modules/tsx/dist/cli.mjs</string>
+    <string>/Users/YOURNAME/Projects/post-scheduler/src/cli.ts</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>POST_SCHEDULER_ENABLED</key>
+    <string>1</string>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/YOURNAME/Library/Logs/post-scheduler.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/YOURNAME/Library/Logs/post-scheduler.err.log</string>
+</dict>
+</plist>
